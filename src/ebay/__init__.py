@@ -1,0 +1,2 @@
+"""eBay integration package."""
+

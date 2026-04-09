@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "zeparts-ebay-automation"
+version = "0.1.0"
+description = "Production scaffold for ZEParts Australia eBay automation."
+authors = ["ZEParts <engineering@example.com>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.12"
+httpx = "*"
+pydantic = "*"
+pydantic-settings = "*"
+sqlalchemy = "*"
+asyncpg = "*"
+alembic = "*"
+tenacity = "*"
+google-cloud-pubsub = "*"
+google-cloud-secret-manager = "*"
+google-cloud-storage = "*"
+fastapi = "*"
+uvicorn = "*"
+jinja2 = "*"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+pytest-asyncio = "*"
+ruff = "*"
+black = "*"
+aiosqlite = "*"
+
+[build-system]
+requires = ["poetry-core>=1.9.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

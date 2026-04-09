@@ -1,0 +1,2 @@
+"""Catalog integration package."""
+

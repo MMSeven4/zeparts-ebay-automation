@@ -1,0 +1,38 @@
+[
+  {
+    "sku": "ZE-BRK-001",
+    "brand": "Bendix",
+    "part_name": "Front Brake Pad Set",
+    "part_category": "Brake Pads",
+    "year_range": "2015-2019",
+    "make": "Toyota",
+    "model": "Hilux",
+    "price_aud": 129.95,
+    "stock_qty": 12,
+    "condition": "New",
+    "oem_number": "04465-0K240",
+    "images": [
+      "https://example.com/images/ze-brk-001-1.jpg",
+      "https://example.com/images/ze-brk-001-2.jpg"
+    ],
+    "description": "Front brake pad set suitable for selected Toyota Hilux models."
+  },
+  {
+    "sku": "ZE-FLT-014",
+    "brand": "Ryco",
+    "part_name": "Engine Air Filter",
+    "part_category": "Air Filters",
+    "year_range": "2012-2018",
+    "make": "Ford",
+    "model": "Ranger",
+    "price_aud": 34.5,
+    "stock_qty": 28,
+    "condition": "New",
+    "oem_number": "AB39-9601-AC",
+    "images": [
+      "https://example.com/images/ze-flt-014-1.jpg",
+      "https://example.com/images/ze-flt-014-2.jpg"
+    ],
+    "description": "Engine air filter designed for selected Ford Ranger applications."
+  }
+]
