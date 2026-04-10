@@ -120,12 +120,12 @@ class CatalogClient:
         raw_images = data.get("images", [])
         images = [
             PartImage(
-                url=image["url"],
+                url=image.get("url"),
                 position=image.get("sort_order", image.get("position", 0)),
                 alt_text=image.get("alt_text"),
             )
             for image in raw_images
-            if isinstance(image, dict) and image.get("url")
+            if isinstance(image, dict) and isinstance(image.get("url"), str) and image.get("url")
         ]
 
         raw_fitment = data.get("fitment", [])
