@@ -59,7 +59,7 @@ async def process_listing(part: Part) -> None:
     settings = get_settings()
     repo = ListingRepository()
     existing = await repo.get_by_sku(part.sku)
-    xml_payload = build_listing_payload(part)
+    xml_payload = await build_listing_payload(part)
 
     if settings.dry_run:
         _logger().info(

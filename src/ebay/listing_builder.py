@@ -161,10 +161,15 @@ def build_description_html(part: Part) -> str:
     )
 
 
-def build_listing_payload(part: Part) -> str:
+async def build_listing_payload(part: Part) -> str:
     """Build the complete eBay Trading API AddItem XML payload."""
 
+    from src.ebay.auth import token_manager
+    import asyncio
+
+    _ = asyncio
     settings = get_settings()
+    token = await token_manager.get_token()
     title = build_title(part)
     description_html = build_description_html(part).replace(
         "]]>",
@@ -176,6 +181,8 @@ def build_listing_payload(part: Part) -> str:
     price = max(part.price_aud * settings.price_margin_multiplier, 0.0)
 
     root = ET.Element("AddItemRequest", xmlns="urn:ebay:apis:eBLBaseComponents")
+    requester_credentials = ET.SubElement(root, "RequesterCredentials")
+    ET.SubElement(requester_credentials, "eBayAuthToken").text = token
     item = ET.SubElement(root, "Item")
 
     ET.SubElement(item, "Title").text = title
@@ -195,6 +202,8 @@ def build_listing_payload(part: Part) -> str:
     ET.SubElement(item, "ListingType").text = "FixedPriceItem"
     ET.SubElement(item, "ListingDuration").text = "GTC"
     ET.SubElement(item, "DispatchTimeMax").text = "3"
+    ET.SubElement(item, "Location").text = "Sydney, NSW"
+    ET.SubElement(item, "PostalCode").text = "2000"
 
     item_specifics = ET.SubElement(item, "ItemSpecifics")
     for name, value in build_item_specifics(part).items():
@@ -206,16 +215,23 @@ def build_listing_payload(part: Part) -> str:
     for image in sorted(part.images, key=lambda image: image.position)[:12]:
         ET.SubElement(picture_details, "PictureURL").text = image.url
 
-    seller_profiles = ET.SubElement(item, "SellerProfiles")
+    shipping_details = ET.SubElement(item, "ShippingDetails")
+    shipping_service_options = ET.SubElement(
+        shipping_details,
+        "ShippingServiceOptions",
+    )
+    ET.SubElement(shipping_service_options, "ShippingServicePriority").text = "1"
+    ET.SubElement(shipping_service_options, "ShippingService").text = "AU_Regular"
+    ET.SubElement(shipping_service_options, "ShippingServiceCost").text = "9.95"
 
-    shipping_profile = ET.SubElement(seller_profiles, "SellerShippingProfile")
-    ET.SubElement(shipping_profile, "ShippingProfileName").text = POSTAGE_POLICY_ID
+    return_policy = ET.SubElement(item, "ReturnPolicy")
+    ET.SubElement(return_policy, "ReturnsAcceptedOption").text = "ReturnsAccepted"
+    ET.SubElement(return_policy, "RefundOption").text = "MoneyBack"
+    ET.SubElement(return_policy, "ReturnsWithinOption").text = "Days_30"
+    ET.SubElement(return_policy, "ShippingCostPaidByOption").text = "Buyer"
 
-    payment_profile = ET.SubElement(seller_profiles, "SellerPaymentProfile")
-    ET.SubElement(payment_profile, "PaymentProfileName").text = PAYMENT_POLICY_ID
-
-    return_profile = ET.SubElement(seller_profiles, "SellerReturnProfile")
-    ET.SubElement(return_profile, "ReturnProfileName").text = RETURN_POLICY_ID
+    ET.SubElement(item, "PaymentMethods").text = "PayPal"
+    ET.SubElement(item, "PayPalEmailAddress").text = "sandbox-zeparts@example.com"
 
     xml_body = ET.tostring(root, encoding="unicode", short_empty_elements=False)
     xml_body = xml_body.replace(

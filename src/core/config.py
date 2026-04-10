@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     """Runtime settings loaded from environment variables."""
 
     ebay_client_id: str
+    ebay_dev_id: str
     ebay_client_secret: str
     ebay_refresh_token: str
     ebay_sandbox_mode: bool = False

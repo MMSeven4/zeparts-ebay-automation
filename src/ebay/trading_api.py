@@ -32,6 +32,7 @@ class EbayTradingClient:
         """Initialise the client using application settings."""
 
         self._settings = get_settings()
+        self._dev_id = get_settings().ebay_dev_id
 
     @property
     def endpoint(self) -> str:
@@ -50,6 +51,8 @@ class EbayTradingClient:
             "X-EBAY-API-SITEID": self.SITE_ID,
             "X-EBAY-API-COMPATIBILITY-LEVEL": self.COMPATIBILITY_LEVEL,
             "X-EBAY-API-APP-NAME": self._settings.ebay_client_id,
+            "X-EBAY-API-DEV-NAME": self._dev_id,
+            "X-EBAY-API-CERT-NAME": self._settings.ebay_client_secret,
             "Content-Type": "text/xml",
             "Authorization": f"Bearer {token}",
         }
@@ -84,6 +87,8 @@ class EbayTradingClient:
         """Create a new eBay listing using a prebuilt XML payload."""
 
         response = await self._post("AddItem", xml)
+        if "ItemID" not in response:
+            print(response)
         item_id = str(response["ItemID"])
 
         _logger().info(
