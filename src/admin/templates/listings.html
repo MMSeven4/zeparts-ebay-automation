@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="stats-grid" aria-label="Listing stats">
+    <article class="stat-card">
+        <p class="stat-label">Total</p>
+        <p class="stat-value">{{ counts.total }}</p>
+    </article>
+    <article class="stat-card">
+        <p class="stat-label">Active</p>
+        <p class="stat-value">{{ counts.active }}</p>
+    </article>
+    <article class="stat-card">
+        <p class="stat-label">Ended</p>
+        <p class="stat-value">{{ counts.ended }}</p>
+    </article>
+    <article class="stat-card">
+        <p class="stat-label">Error</p>
+        <p class="stat-value">{{ counts.error }}</p>
+    </article>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h3 class="panel-title">Listings</h3>
+            <p class="panel-subtitle">Current listing records tracked in the ZEParts automation database.</p>
+        </div>
+    </div>
+
+    {% if listings %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>eBay Item ID</th>
+                    <th>Last Synced</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for listing in listings %}
+                <tr>
+                    <td class="mono">{{ listing.sku }}</td>
+                    <td>{{ listing.title or "Untitled listing" }}</td>
+                    <td>
+                        <span class="badge {{ status_badge_class(listing.status) }}">{{ listing.status.value }}</span>
+                    </td>
+                    <td>
+                        {% if listing.price_aud is not none %}
+                            ${{ "%.2f"|format(listing.price_aud) }}
+                        {% else %}
+                            <span class="muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ listing.quantity if listing.quantity is not none else "-" }}</td>
+                    <td>
+                        {% if listing.ebay_item_id %}
+                            {% if listing.status.value == "active" %}
+                                <a href="https://www.sandbox.ebay.com/itm/{{ listing.ebay_item_id }}" target="_blank" rel="noopener noreferrer" class="mono">{{ listing.ebay_item_id }}</a>
+                            {% else %}
+                                <span class="mono">{{ listing.ebay_item_id }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ listing.last_synced_at|datetime }}</td>
+                    <td>
+                        <a class="button button-secondary" href="/listings/{{ listing.sku }}">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h3>No listings yet</h3>
+        <p>The automation database does not have any listing records yet. Run ingestion or create a sandbox listing to populate this view.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

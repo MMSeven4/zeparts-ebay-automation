@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import AsyncGenerator
 
-from sqlalchemy import select
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.core.config import get_settings
@@ -136,6 +136,27 @@ class ListingRepository:
         async with get_session() as session:
             result = await session.execute(
                 select(EbayListing).where(EbayListing.status == ListingStatus.active)
+            )
+            return list(result.scalars().all())
+
+    async def get_all_listings(self) -> list[EbayListing]:
+        """Return all listings ordered by most recently updated first."""
+
+        async with get_session() as session:
+            result = await session.execute(
+                select(EbayListing).order_by(desc(EbayListing.updated_at))
+            )
+            return list(result.scalars().all())
+
+    async def get_sync_logs(self, sku: str, limit: int = 10) -> list[SyncLog]:
+        """Return the most recent sync log entries for a given SKU."""
+
+        async with get_session() as session:
+            result = await session.execute(
+                select(SyncLog)
+                .where(SyncLog.sku == sku)
+                .order_by(desc(SyncLog.timestamp))
+                .limit(limit)
             )
             return list(result.scalars().all())
 

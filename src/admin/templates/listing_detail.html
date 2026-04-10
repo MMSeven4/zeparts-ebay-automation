@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="button-row">
+    <a class="button button-secondary" href="/listings">Back to Listings</a>
+</div>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h3 class="panel-title">Listing Details</h3>
+            <p class="panel-subtitle">Operational view for SKU {{ listing.sku }}.</p>
+        </div>
+        <span class="badge {{ status_badge_class(listing.status) }}">{{ listing.status.value }}</span>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <p class="detail-label">SKU</p>
+            <p class="detail-value mono">{{ listing.sku }}</p>
+        </div>
+        <div class="detail-item">
+            <p class="detail-label">Title</p>
+            <p class="detail-value">{{ listing.title or "Untitled listing" }}</p>
+        </div>
+        <div class="detail-item">
+            <p class="detail-label">eBay Item ID</p>
+            <p class="detail-value">
+                {% if listing.ebay_item_id %}
+                    <span class="mono">{{ listing.ebay_item_id }}</span>
+                {% else %}
+                    <span class="muted">Not assigned</span>
+                {% endif %}
+            </p>
+        </div>
+        <div class="detail-item">
+            <p class="detail-label">Price</p>
+            <p class="detail-value">
+                {% if listing.price_aud is not none %}
+                    ${{ "%.2f"|format(listing.price_aud) }}
+                {% else %}
+                    <span class="muted">-</span>
+                {% endif %}
+            </p>
+        </div>
+        <div class="detail-item">
+            <p class="detail-label">Quantity</p>
+            <p class="detail-value">{{ listing.quantity if listing.quantity is not none else "-" }}</p>
+        </div>
+        <div class="detail-item">
+            <p class="detail-label">Created</p>
+            <p class="detail-value">{{ listing.created_at|datetime }}</p>
+        </div>
+        <div class="detail-item">
+            <p class="detail-label">Last Synced</p>
+            <p class="detail-value">{{ listing.last_synced_at|datetime }}</p>
+        </div>
+        <div class="detail-item">
+            <p class="detail-label">Error</p>
+            <p class="detail-value">
+                {% if listing.error_message %}
+                    {{ listing.error_message }}
+                {% else %}
+                    <span class="muted">No current error</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h3 class="panel-title">Actions</h3>
+            <p class="panel-subtitle">Manual controls for this listing.</p>
+        </div>
+    </div>
+    <div class="button-row">
+        <form action="/listings/{{ listing.sku }}/sync" method="post">
+            <button type="submit" class="button-primary">Trigger Sync</button>
+        </form>
+        {% if listing.status.value == "active" %}
+        <form action="/listings/{{ listing.sku }}/end" method="post">
+            <button type="submit" class="button-danger">End Listing</button>
+        </form>
+        {% endif %}
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h3 class="panel-title">Sync History</h3>
+            <p class="panel-subtitle">Most recent 10 sync actions for this SKU.</p>
+        </div>
+    </div>
+
+    {% if sync_logs %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Action</th>
+                    <th>Success</th>
+                    <th>Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in sync_logs %}
+                <tr>
+                    <td>{{ log.timestamp|datetime }}</td>
+                    <td>{{ log.action.value }}</td>
+                    <td>
+                        {% if log.success %}
+                            <span class="success-true" aria-label="Success">✅</span>
+                        {% else %}
+                            <span class="success-false" aria-label="Failure">❌</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ log.detail or "-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h3>No sync history yet</h3>
+        <p>This SKU does not have any recorded sync log entries.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
